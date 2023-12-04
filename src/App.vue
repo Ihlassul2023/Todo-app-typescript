@@ -49,7 +49,7 @@ const handleSubmit = () => {
           <button @click="handleSubmit" class="p-2 bg-LightGrayishBlue w-2/4 rounded-md">Add</button>
         </div>
         <div class="w-full rounded-md bg-white min-h-heightMin shadow-2xl">
-          <div v-if="dataInput.values.length != 0" v-for="data in dataInput" :key="data.id" class="w-full p-6 border-b-2 flex justify-between items-center">
+          <div v-for="data in dataInput" :key="data.id" class="w-full p-6 border-b-2 flex justify-between items-center">
             <div class="flex items-center gap-4">
               <div v-if="data.status" @click="handleStatus(data.id)" class="w-4 h-4 border bg-BrightBlue rounded-full"></div>
               <div v-if="data.status == false" @click="handleStatus(data.id)" class="w-4 h-4 border border-black rounded-full"></div>
@@ -60,9 +60,6 @@ const handleSubmit = () => {
             <div @click="handleDelete(data.id)" class="w-4 h-4 cursor-pointer">
               <img :src="deleteSym" alt="del" />
             </div>
-          </div>
-          <div v-if="dataInput.values.length == 0">
-            <p class="text-DarkGrayishBlue">Text Diisi</p>
           </div>
         </div>
       </div>
