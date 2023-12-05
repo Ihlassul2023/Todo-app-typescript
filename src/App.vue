@@ -1,42 +1,44 @@
 <script setup lang="ts">
-import background from "./assets/bg-desktop-light.jpg";
-import deleteSym from "./assets/icon-cross.svg";
-import { ref } from "vue";
+// import background from "./assets/bg-desktop-light.jpg";
+// import deleteSym from "./assets/icon-cross.svg";
+// import { ref } from "vue";
+// import {RouterView} from 'vue-router'
 
-type Text = {
-  id: number;
-  teks: string;
-  status: boolean;
-};
-const text = ref<string>("");
-const dataInput = ref<Text[]>([]);
+// type Text = {
+//   id: number;
+//   teks: string;
+//   status: boolean;
+// };
+// const text = ref<string>("");
+// const dataInput = ref<Text[]>([]);
 
-const myFilter = (cb: (item: Text) => boolean): Text[] => {
-  let arr: Text[] = [];
-  for (let i = 0; i < dataInput.value.length; i++) {
-    if (cb(dataInput.value[i])) {
-      arr.push(dataInput.value[i]);
-    }
-  }
-  return arr;
-};
-const handleStatus = (id: number) => {
-  dataInput.value[id] = { ...dataInput.value[id], status: !dataInput.value[id].status };
-};
-const handleDelete = (id: number) => {
-  dataInput.value = myFilter((val) => val.id != id);
-};
-const handleSubmit = () => {
-  dataInput.value.push({
-    id: dataInput.value.length,
-    teks: text.value,
-    status: false,
-  });
-};
+// const myFilter = (cb: (item: Text) => boolean): Text[] => {
+//   let arr: Text[] = [];
+//   for (let i = 0; i < dataInput.value.length; i++) {
+//     if (cb(dataInput.value[i])) {
+//       arr.push(dataInput.value[i]);
+//     }
+//   }
+//   return arr;
+// };
+// const handleStatus = (id: number) => {
+//   dataInput.value[id] = { ...dataInput.value[id], status: !dataInput.value[id].status };
+// };
+// const handleDelete = (id: number) => {
+//   dataInput.value = myFilter((val) => val.id != id);
+// };
+// const handleSubmit = () => {
+//   dataInput.value.push({
+//     id: dataInput.value.length,
+//     teks: text.value,
+//     status: false,
+//   });
+// };
 </script>
 
 <template>
-  <div class="min-h-screen w-screen relative flex justify-center">
+  <RouterView> </RouterView>
+  <!-- <div class="min-h-screen w-screen relative flex justify-center">
     <div>
       <img :src="background" alt="bg" />
     </div>
@@ -64,7 +66,7 @@ const handleSubmit = () => {
         </div>
       </div>
     </div>
-  </div>
+  </div> -->
 </template>
 
 <style scoped></style>

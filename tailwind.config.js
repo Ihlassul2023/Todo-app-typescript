@@ -14,6 +14,7 @@ export default {
     },
     minHeight: {
       heightMin: "300px",
+      screen: "100vh",
     },
   },
   variants: {

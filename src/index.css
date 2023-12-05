@@ -6,6 +6,7 @@
 * {
   font-family: "Josefin Sans", sans-serif;
   outline: none;
-  margin: 0;
-  padding: 0;
+}
+body {
+  background-color: hsl(236, 33%, 92%);
 }
