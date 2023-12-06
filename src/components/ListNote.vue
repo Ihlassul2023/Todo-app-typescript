@@ -3,22 +3,51 @@ import { ref } from "vue";
 import back from "../assets/back.svg";
 import more from "../assets/more.svg";
 import note from "../assets/note.svg";
+import work from "../assets/work.svg";
+import music from "../assets/music.svg";
+import travel from "../assets/travel.svg";
+import book from "../assets/book.svg";
+import home from "../assets/home.svg";
+import desc from "../assets/desc.svg";
 import deleteSym from "../assets/icon-cross.svg";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import CreateNote from "./CreateNote.vue";
 
 const router = useRouter();
 const check = ref(false);
-const checkHandle = () => {
-  check.value = !check.value;
-};
+const route = useRoute();
 type Text = {
   id: number;
   teks: string;
   status: boolean;
 };
+type IdentyImg = {
+  work: string;
+  music: string;
+  travel: string;
+  book: string;
+  home: string;
+  desc: string;
+  note: string;
+};
+const identyImg: IdentyImg = {
+  work,
+  music,
+  travel,
+  book,
+  home,
+  desc,
+  note,
+};
+type UpdateNote = {
+  id: number;
+  teks: string;
+};
 const dataInput = ref<Text[]>([]);
-
+const textUpdate = ref<UpdateNote>({
+  id: 0,
+  teks: "",
+});
 const myFilter = (cb: (item: Text) => boolean): Text[] => {
   let arr: Text[] = [];
   for (let i = 0; i < dataInput.value.length; i++) {
@@ -28,26 +57,42 @@ const myFilter = (cb: (item: Text) => boolean): Text[] => {
   }
   return arr;
 };
+const checkHandle = () => {
+  check.value = !check.value;
+  textUpdate.value = {
+    id: 0,
+    teks: "",
+  };
+};
 const handleStatus = (id: number) => {
-  dataInput.value[id] = { ...dataInput.value[id], status: !dataInput.value[id].status };
+  dataInput.value[id - 1] = { ...dataInput.value[id - 1], status: !dataInput.value[id - 1].status };
 };
 const handleDelete = (id: number) => {
   dataInput.value = myFilter((val) => val.id != id);
 };
 const handleSubmit = (i: string) => {
   dataInput.value.push({
-    id: dataInput.value.length,
+    id: dataInput.value.length + 1,
     teks: i,
     status: false,
   });
+  checkHandle();
 };
-// defineProps<{ msg: string }>();
-
-// const count = ref(0);
+const handleEditInput = (id: number, text: string) => {
+  textUpdate.value = {
+    id,
+    teks: text,
+  };
+  check.value = !check.value;
+};
+const handleEditSubmit = (id: number, text: string) => {
+  dataInput.value[id - 1] = { ...dataInput.value[id - 1], teks: text };
+  checkHandle();
+};
 </script>
 <template>
   <div v-if="check == true">
-    <CreateNote @check="checkHandle" @submit="handleSubmit" />
+    <CreateNote @check="checkHandle" @submit="handleSubmit" @edit="handleEditSubmit" :datafromParent="textUpdate" />
   </div>
   <div v-if="check == false" class="relative w-screen min-h-screen">
     <div class="h-72 p-4">
@@ -57,11 +102,11 @@ const handleSubmit = (i: string) => {
       </div>
       <div class="flex flex-col justify-center gap-4">
         <div class="w-14 h-14 p-2 bg-white rounded-full">
-          <img style="width: 40px; height: 40px" :src="note" alt="note" />
+          <img class="h-sizeImg w-sizeImg" :src="identyImg[route.query.img]" alt="note" />
         </div>
         <div>
-          <p class="text-3xl font-bold text-black">All</p>
-          <p class="text-black">23 Task</p>
+          <p class="text-3xl font-bold text-black">{{ route.query.name }}</p>
+          <p class="text-black">{{ dataInput.length }} Task</p>
         </div>
       </div>
     </div>
@@ -72,14 +117,14 @@ const handleSubmit = (i: string) => {
           <div v-if="data.status == false" @click="handleStatus(data.id)" class="w-4 h-4 border border-black rounded-full"></div>
 
           <p v-if="data.status" class="line-through">{{ data.teks }}</p>
-          <p v-if="data.status == false">{{ data.teks }}</p>
+          <p v-if="data.status == false" @click="handleEditInput(data.id, data.teks)">{{ data.teks }}</p>
         </div>
         <div @click="handleDelete(data.id)" class="w-4 h-4 cursor-pointer">
           <img :src="deleteSym" alt="del" />
         </div>
       </div>
     </div>
-    <div @click="checkHandle" class="fixed w-20 h-20 rounded-full top-96 left-72 cursor-pointer bg-VeryLightGrayishBlue flex justify-center items-center"><p class="text-black text-3xl">+</p></div>
+    <div @click="checkHandle" class="fixed w-20 h-20 rounded-full top-floatButton left-72 cursor-pointer bg-VeryLightGrayishBlue flex justify-center items-center"><p class="text-black text-3xl">+</p></div>
   </div>
 </template>
 

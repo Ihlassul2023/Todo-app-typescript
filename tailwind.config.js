@@ -11,6 +11,13 @@ export default {
         DarkGrayishBlue: "hsl(236, 9%, 61%)",
         VeryDarkGrayishBlue: "hsl(235, 19%, 35%)",
       },
+      spacing: {
+        floatButton: "540px",
+        sizeImg: "40px",
+      },
+      animation: {
+        "slow-slide": "slide 2s ease-in-out", // Ganti '2s' sesuai kebutuhan durasi
+      },
     },
     minHeight: {
       heightMin: "300px",
