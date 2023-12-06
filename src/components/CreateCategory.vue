@@ -4,7 +4,6 @@ import { ref } from "vue";
 const text = ref<string>("");
 const isCheck = ref(false);
 </script>
-
 <template>
   <div class="w-screen h-screen absolute p-4 z-10">
     <div class="flex justify-between items-center w-2/4">
