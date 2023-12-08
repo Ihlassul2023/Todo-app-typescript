@@ -15,9 +15,6 @@ export default {
         floatButton: "540px",
         sizeImg: "40px",
       },
-      animation: {
-        "slow-slide": "slide 2s ease-in-out", // Ganti '2s' sesuai kebutuhan durasi
-      },
     },
     minHeight: {
       heightMin: "300px",

@@ -1,35 +1,15 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import back from "../assets/back.svg";
 import more from "../assets/more.svg";
-import note from "../assets/note.svg";
-import work from "../assets/work.svg";
-import music from "../assets/music.svg";
-import travel from "../assets/travel.svg";
-import book from "../assets/book.svg";
-import home from "../assets/home.svg";
-import desc from "../assets/desc.svg";
+import { book, work, note, music, travel, home, desc } from "../assets/index";
 import deleteSym from "../assets/icon-cross.svg";
 import { useRouter, useRoute } from "vue-router";
-import CreateNote from "./CreateNote.vue";
+import { getCategory, IdentyImg, Category, changeNote, deleteNote, deleteCategory } from "../store/repository";
 
 const router = useRouter();
-const check = ref(false);
 const route = useRoute();
-type Text = {
-  id: number;
-  teks: string;
-  status: boolean;
-};
-type IdentyImg = {
-  work: string;
-  music: string;
-  travel: string;
-  book: string;
-  home: string;
-  desc: string;
-  note: string;
-};
+
 const identyImg: IdentyImg = {
   work,
   music,
@@ -39,92 +19,75 @@ const identyImg: IdentyImg = {
   desc,
   note,
 };
-type UpdateNote = {
-  id: number;
-  teks: string;
-};
-const dataInput = ref<Text[]>([]);
-const textUpdate = ref<UpdateNote>({
-  id: 0,
-  teks: "",
+
+const dataCategory = ref<Category>({
+  id: "",
+  image: "",
+  name: "",
+  list: [],
 });
-const myFilter = (cb: (item: Text) => boolean): Text[] => {
-  let arr: Text[] = [];
-  for (let i = 0; i < dataInput.value.length; i++) {
-    if (cb(dataInput.value[i])) {
-      arr.push(dataInput.value[i]);
-    }
-  }
-  return arr;
+const click = ref(false);
+const getData = async () => {
+  dataCategory.value = await getCategory(route.params.id.toString());
 };
-const checkHandle = () => {
-  check.value = !check.value;
-  textUpdate.value = {
-    id: 0,
-    teks: "",
-  };
+const handleStatus = async (id: string) => {
+  let index = dataCategory.value.list.findIndex((list) => list.id == id);
+  let targetList = dataCategory.value.list[index];
+  dataCategory.value.list[index] = { ...targetList, status: !targetList.status };
+  await changeNote(route.params.id.toString(), targetList, dataCategory.value.list[index]);
 };
-const handleStatus = (id: number) => {
-  dataInput.value[id - 1] = { ...dataInput.value[id - 1], status: !dataInput.value[id - 1].status };
+const handleDelete = async (id: string) => {
+  let index = dataCategory.value.list.findIndex((list) => list.id == id);
+  let targetList = dataCategory.value.list[index];
+  await deleteNote(route.params.id.toString(), targetList);
+  getData();
 };
-const handleDelete = (id: number) => {
-  dataInput.value = myFilter((val) => val.id != id);
+const handleDeleteCategory = async () => {
+  await deleteCategory(route.params.id.toString());
+  router.push("/");
 };
-const handleSubmit = (i: string) => {
-  dataInput.value.push({
-    id: dataInput.value.length + 1,
-    teks: i,
-    status: false,
-  });
-  checkHandle();
+const handleMenu = () => {
+  click.value = !click.value;
 };
-const handleEditInput = (id: number, text: string) => {
-  textUpdate.value = {
-    id,
-    teks: text,
-  };
-  check.value = !check.value;
-};
-const handleEditSubmit = (id: number, text: string) => {
-  dataInput.value[id - 1] = { ...dataInput.value[id - 1], teks: text };
-  checkHandle();
-};
+onMounted(() => {
+  getData();
+});
 </script>
 <template>
-  <div v-if="check == true">
-    <CreateNote @check="checkHandle" @submit="handleSubmit" @edit="handleEditSubmit" :datafromParent="textUpdate" />
-  </div>
-  <div v-if="check == false" class="relative w-screen min-h-screen">
+  <div class="relative w-screen min-h-screen">
     <div class="h-72 p-4">
       <div class="flex justify-between mb-8">
         <img @click="router.go(-1)" class="cursor-pointer" :src="back" alt="back" />
-        <img :src="more" alt="more" />
+        <img @click="handleMenu" :src="more" alt="more" />
+        <div v-if="click" class="absolute top-10 left-1/2 w-2/5 bg-white">
+          <p @click="handleDeleteCategory" class="p-2 border-b">Delete</p>
+        </div>
       </div>
       <div class="flex flex-col justify-center gap-4">
         <div class="w-14 h-14 p-2 bg-white rounded-full">
-          <img class="h-sizeImg w-sizeImg" :src="identyImg[route.query.img]" alt="note" />
+          <img class="h-sizeImg w-sizeImg" :src="identyImg[dataCategory.image]" alt="note" />
         </div>
         <div>
-          <p class="text-3xl font-bold text-black">{{ route.query.name }}</p>
-          <p class="text-black">{{ dataInput.length }} Task</p>
+          <p class="text-3xl font-bold text-black">{{ dataCategory.name }}</p>
+          <p class="text-black">{{ dataCategory.list.length }} Task</p>
         </div>
       </div>
     </div>
     <div class="w-full min-h-screen bg-white rounded-3xl absolute top-64 p-4">
-      <div v-for="data in dataInput" :key="data.id" class="w-full p-6 border-b-2 flex justify-between items-center">
+      <div v-for="data in dataCategory.list" :key="data.id" class="w-full p-6 border-b-2 flex justify-between items-center">
         <div class="flex items-center gap-4">
           <div v-if="data.status" @click="handleStatus(data.id)" class="w-4 h-4 border bg-BrightBlue rounded-full"></div>
           <div v-if="data.status == false" @click="handleStatus(data.id)" class="w-4 h-4 border border-black rounded-full"></div>
 
           <p v-if="data.status" class="line-through">{{ data.teks }}</p>
-          <p v-if="data.status == false" @click="handleEditInput(data.id, data.teks)">{{ data.teks }}</p>
+          <p v-if="data.status == false" @click="router.push(`/create-note/${route.params.id}?idNote=${data.id}`)">{{ data.teks }}</p>
         </div>
         <div @click="handleDelete(data.id)" class="w-4 h-4 cursor-pointer">
           <img :src="deleteSym" alt="del" />
         </div>
       </div>
     </div>
-    <div @click="checkHandle" class="fixed w-20 h-20 rounded-full top-floatButton left-72 cursor-pointer bg-VeryLightGrayishBlue flex justify-center items-center"><p class="text-black text-3xl">+</p></div>
+    <div @click="router.push(`/create-note/${route.params.id}`)" class="fixed w-20 h-20 rounded-full top-floatButton left-72 cursor-pointer bg-VeryLightGrayishBlue flex justify-center items-center"><p class="text-black text-3xl">+</p></div>
   </div>
 </template>
 
@@ -133,3 +96,4 @@ const handleEditSubmit = (id: number, text: string) => {
   color: #888;
 }
 </style>
+../store/firestore
