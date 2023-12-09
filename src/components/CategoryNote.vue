@@ -4,9 +4,9 @@ import { onMounted, ref } from "vue";
 import deleteSym from "../assets/icon-cross.svg";
 import { getAllCategory } from "../store/repository";
 import { book, work, note, music, travel, home, desc } from "../assets";
-import { Category, IdentyImg } from "../store/repository";
+import { Category } from "../store/repository";
 
-const identyImg: IdentyImg = {
+const identyImg: any = {
   work,
   music,
   travel,
@@ -47,23 +47,32 @@ onMounted(() => {
         <span class="w-2/4 h-1 bg-black"></span>
       </div>
       <p class="text-black text-2xl font-bold">Lists</p>
-      <div class="relative flex flex-wrap mt-4 gap-4 md:flex-row">
-        <div v-for="category in listCategory" @click="router.push(`/list-note/${category.id}`)" class="flex flex-col justify-center gap-3 cursor-pointer w-2/5 md:w-32 h-32 border rounded-lg bg-white p-2">
-          <img class="h-sizeImg w-sizeImg" :src="identyImg[category.image]" alt="note" />
-          <div>
-            <p class="text-xl">{{ category.name }}</p>
-            <p class="text-sm">{{ category.list.length }} Task</p>
+      <Transition>
+        <div class="relative flex flex-wrap mt-4 gap-4 md:flex-row">
+          <div v-for="category in listCategory" @click="router.push(`/list-note/${category.id}`)" class="flex flex-col justify-center gap-3 cursor-pointer w-2/5 md:w-32 h-32 border rounded-lg bg-white p-2">
+            <img class="h-sizeImg w-sizeImg" :src="identyImg[category.image]" alt="note" />
+            <div>
+              <p class="text-xl">{{ category.name }}</p>
+              <p class="text-sm">{{ category.list.length }} Task</p>
+            </div>
           </div>
+          <div @click="router.push('/add-category')" class="fixed w-20 h-20 rounded-full top-floatButton left-72 cursor-pointer bg-white flex justify-center items-center"><p class="text-black text-3xl">+</p></div>
         </div>
-        <div @click="router.push('/add-category')" class="fixed w-20 h-20 rounded-full top-floatButton left-72 cursor-pointer bg-white flex justify-center items-center"><p class="text-black text-3xl">+</p></div>
-      </div>
+      </Transition>
     </div>
   </div>
 </template>
 
 <style scoped>
-.sidebar {
-  transition: 2s;
+/* we will explain what these classes do next! */
+.v-enter-active,
+.v-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.v-enter-from,
+.v-leave-to {
+  opacity: 0;
 }
 </style>
 ../store/repository

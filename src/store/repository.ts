@@ -64,6 +64,13 @@ export const getCategory = async (id: string): Promise<Category> => {
   return category.value;
 };
 
+export const editCategory = async (id: string, value: string) => {
+  const washingtonRef = doc(store, "category", id);
+  await updateDoc(washingtonRef, {
+    name: value,
+  });
+};
+
 export const deleteCategory = async (id: string) => {
   await deleteDoc(doc(store, "category", id));
 };
