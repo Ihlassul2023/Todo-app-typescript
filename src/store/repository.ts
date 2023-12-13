@@ -5,22 +5,17 @@ import { store } from "./firestore";
 export type Text = {
   id: string;
   teks: string | undefined;
+  postscript: string | undefined;
+  remind_date: Date;
   status: boolean;
+  category: string;
+  category_id: string;
 };
 export type Category = {
   id: string;
   name: string;
   image: string;
   list: Text[];
-};
-export type IdentyImg = {
-  work: string;
-  music: string;
-  travel: string;
-  book: string;
-  home: string;
-  desc: string;
-  note: string;
 };
 const category = ref<Category>({
   id: "",

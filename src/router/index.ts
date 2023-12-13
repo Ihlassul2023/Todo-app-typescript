@@ -18,9 +18,19 @@ const router = createRouter({
       component: () => import("../components/ListNote.vue"),
     },
     {
+      path: "/all-todos/:id",
+      name: "allTodos",
+      component: () => import("../components/AllTodos.vue"),
+    },
+    {
       path: "/create-note/:id",
       name: "create-note",
       component: () => import("../components/CreateNote.vue"),
+    },
+    {
+      path: "/create-postscript/:id",
+      name: "create-postscript",
+      component: () => import("../components/CreatePostScript.vue"),
     },
   ],
 });
