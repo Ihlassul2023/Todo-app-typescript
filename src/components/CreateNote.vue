@@ -2,20 +2,20 @@
 import back from "../assets/back.svg";
 import { ref, onMounted } from "vue";
 import { createNote, changeNote, getCategory, getAllCategory, Category, Text, deleteNote } from "../store/repository";
-import { notif, addNote, category } from "../assets";
+import { notif, addNote, tags, category } from "../assets";
+import deleteSym from "../assets/icon-cross.svg";
 import { useRouter, useRoute } from "vue-router";
 import { v4 as uuidv4 } from "uuid";
-import { Timestamp } from "firebase/firestore";
-
 const text = ref<string | undefined>("");
 const dataInput = ref<Text>({
   id: "",
   teks: "",
   postscript: "",
-  remind_date: new Date(),
+  remind_date: "",
   status: false,
   category: "",
   category_id: "",
+  tag: [],
 });
 const dataCategory = ref<Category>({
   id: "",
@@ -27,13 +27,20 @@ const idNameCategory = ref({
   id: "",
   name: "",
 });
+const router = useRouter();
+const route = useRoute();
+const handleTags = ref<string[]>([]);
+const handleInputTags = ref("");
 const dataAllCategory = ref<Category[]>([]);
+const id = route.params.id;
 const showSelect = ref(false);
-const t = ref<Timestamp>();
+const showTags = ref(false);
+const t = ref();
 const getData = async (): Promise<void> => {
   dataCategory.value = await getCategory(route.params.id.toString());
   text.value = dataCategory.value.list.find((note) => note.id == route.query.idNote)?.teks;
   t.value = dataCategory.value.list.find((note) => note.id == route.query.idNote)?.remind_date;
+  handleTags.value = dataCategory.value.list.find((note) => note.id == route.query.idNote)?.tag ?? [];
 };
 const getAllDataCategory = async () => {
   dataAllCategory.value = await getAllCategory();
@@ -42,18 +49,16 @@ onMounted(() => {
   getAllDataCategory();
   getData();
 });
-const router = useRouter();
-const route = useRoute();
-const id = route.params.id;
 const handleSubmit = async () => {
   dataInput.value = {
     id: uuidv4(),
     teks: text.value,
     postscript: "",
-    remind_date: new Date(),
+    remind_date: new Date().toLocaleString(),
     status: false,
     category: idNameCategory.value.name || dataCategory.value.name,
     category_id: idNameCategory.value.id || dataCategory.value.id,
+    tag: handleTags.value,
   };
   if (idNameCategory.value.id) {
     await createNote(idNameCategory.value.id, dataInput.value);
@@ -66,7 +71,8 @@ const handleSubmit = async () => {
 const handleEdit = async () => {
   let index = dataCategory.value.list.findIndex((list) => list.id == route.query.idNote);
   let targetList = dataCategory.value.list[index];
-  dataCategory.value.list[index] = { ...targetList, teks: text.value, category: idNameCategory.value.name || targetList.category, category_id: idNameCategory.value.id || targetList.category_id };
+  console.log(targetList);
+  dataCategory.value.list[index] = { ...targetList, teks: text.value, category: idNameCategory.value.name || targetList.category, category_id: idNameCategory.value.id || targetList.category_id, tag: handleTags.value };
   await changeNote(id.toString(), targetList, dataCategory.value.list[index]);
   if (idNameCategory.value.id && idNameCategory.value.id != id) {
     await deleteNote(id.toString(), dataCategory.value.list[index]);
@@ -82,6 +88,9 @@ const selectCategory = (idSelect: string, name: string) => {
     name,
   };
   showSelect.value = !showSelect.value;
+};
+const handleRemoveTag = (index: string) => {
+  handleTags.value = handleTags.value.filter((tag) => tag != index);
 };
 </script>
 <template>
@@ -100,8 +109,7 @@ const selectCategory = (idSelect: string, name: string) => {
     <div class="flex flex-col gap-4 mb-4">
       <div v-if="route.query.idNote" class="flex items-center gap-3">
         <img :src="notif" alt="notif" />
-        <p v-if="$route.query.idNote">{{ t?.toDate().toLocaleString() }}</p>
-        <p v-else>Add Time</p>
+        <p v-if="$route.query.idNote">{{ t }}</p>
       </div>
       <div v-if="route.query.idNote" class="flex items-center gap-3 border-b">
         <img :src="addNote" alt="notif" />
@@ -112,18 +120,36 @@ const selectCategory = (idSelect: string, name: string) => {
           </p>
         </div>
       </div>
-      <div v-if="$route.query.idNote || id == 'ypf3iKUQQXeBmZvV0fFi'" class="relative flex items-center gap-3">
+      <div v-if="$route.query.idNote || id" class="relative flex items-center gap-3">
         <img :src="category" alt="notif" />
         <div>
           <p @click="showSelect = !showSelect">Category</p>
-          <p @click="showSelect = !showSelect">{{ idNameCategory.name || dataCategory.name }}</p>
+          <p class="text-xs" @click="showSelect = !showSelect">{{ idNameCategory.name || dataCategory.name }}</p>
         </div>
-        <div class="w-1/2 shadow-lg rounded-md top-full bg-white flex flex-col absolute p-3" v-if="showSelect">
+        <div class="w-1/2 z-10 shadow-lg rounded-md top-full bg-white flex flex-col absolute p-3" v-if="showSelect">
           <p v-for="category in dataAllCategory" @click="selectCategory(category.id, category.name)">{{ category.name }}</p>
         </div>
       </div>
+      <div class="relative flex items-center gap-3">
+        <div>
+          <p v-if="!$route.query.idNote && id" @click="showTags = !showTags">Add Tags</p>
+          <p v-else>Tags</p>
+          <div class="flex flex-wrap gap-3 mt-4">
+            <div class="flex items-center gap-1" v-for="tag in handleTags">
+              <img class="w-4 h-4" :src="tags" alt="notif" />
+              <p class="text-xs" v-if="!$route.query.idNote && id" @click="showTags = !showTags">{{ tag }}</p>
+              <p class="text-xs" v-else>{{ tag }}</p>
+              <img v-if="!$route.query.idNote && id" @click="handleRemoveTag(tag)" class="w-3 h-3 ml-3" :src="deleteSym" alt="delete" />
+            </div>
+          </div>
+        </div>
+        <div class="w-1/2 shadow-lg rounded-md top-full bg-white flex flex-col gap-4 absolute p-3" v-if="showTags">
+          <input placeholder="Add here" type="text" v-model="handleInputTags" />
+          <button @click="handleTags.push(handleInputTags)" class="p-3 bg-VeryLightGrayishBlue w-full rounded-lg shadow-lg">Add</button>
+        </div>
+      </div>
     </div>
-    <div class="flex justify-center">
+    <div class="flex justify-center mt-8">
       <button v-if="$route.query.idNote" @click="handleEdit" class="bg-white p-4 border rounded-lg w-2/4">Edit</button>
       <button v-else @click="handleSubmit" class="bg-white p-4 border rounded-lg w-2/4">Create</button>
     </div>

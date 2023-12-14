@@ -2,7 +2,7 @@
 // import background from "./assets/bg-desktop-light.jpg";
 // import deleteSym from "./assets/icon-cross.svg";
 // import { ref } from "vue";
-// import {RouterView} from 'vue-router'
+import { RouterView } from "vue-router";
 
 // type Text = {
 //   id: number;

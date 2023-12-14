@@ -6,10 +6,11 @@ export type Text = {
   id: string;
   teks: string | undefined;
   postscript: string | undefined;
-  remind_date: Date;
+  remind_date: string;
   status: boolean;
   category: string;
   category_id: string;
+  tag: string[];
 };
 export type Category = {
   id: string;

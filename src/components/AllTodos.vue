@@ -2,11 +2,10 @@
 import { ref, onMounted } from "vue";
 import back from "../assets/back.svg";
 import more from "../assets/more.svg";
-import { book, work, note, music, travel, home, desc } from "../assets/index";
+import { book, work, note, music, travel, home, desc, tags } from "../assets/index";
 import deleteSym from "../assets/icon-cross.svg";
 import { useRouter, useRoute } from "vue-router";
 import { getAllCategory, Category, changeNote, deleteNote, deleteCategory, Text } from "../store/repository";
-import { Timestamp } from "firebase/firestore";
 
 const router = useRouter();
 const route = useRoute();
@@ -21,10 +20,10 @@ const identyImg: Record<string, string> = {
   note,
 };
 const category = ref<Category[]>([]);
-const dataCategory = ref<Text[]>([]);
+let dataCategory = ref<Text[]>([]);
+const inputText = ref("");
 const click = ref(false);
 const getData = async () => {
-  let t: Timestamp;
   category.value = await getAllCategory();
   for (let i = 0; i < category.value.length; i++) {
     for (let j = 0; j < category.value[i].list.length; j++) {
@@ -32,11 +31,14 @@ const getData = async () => {
     }
   }
   const list = dataCategory.value.map((item) => {
-    t = item.remind_date;
-    return { ...item, remind_date: t.toDate() };
+    let t = new Date(item.remind_date);
+    return { ...item, remind_date: t };
   });
   list.sort((a: any, b: any) => b.remind_date - a.remind_date);
-  dataCategory.value = list;
+  let listAfter = list.map((item: any) => {
+    return { ...item, remind_date: item.remind_date.toLocaleString() };
+  });
+  dataCategory.value = listAfter;
 };
 const handleStatus = async (id: string) => {
   let index = dataCategory.value.findIndex((list) => list.id == id);
@@ -59,6 +61,15 @@ const handleDeleteCategory = async () => {
 };
 const handleMenu = () => {
   click.value = !click.value;
+};
+const arr = ref<Text[]>(dataCategory.value);
+const handleSearch = () => {
+  if (inputText.value.length == 1) {
+    dataCategory.value = [];
+  } else if (inputText.value.length == 0) {
+    getData();
+  }
+  dataCategory.value.push(...arr.value.filter((item) => item.tag.includes(inputText.value)));
 };
 onMounted(() => {
   getData();
@@ -86,6 +97,7 @@ onMounted(() => {
       </div>
     </div>
     <div class="w-full min-h-screen bg-white rounded-3xl absolute top-64 p-4">
+      <input @input="handleSearch" class="bg-VeryLightGrayishBlue p-2 rounded-lg" placeholder="Search by Tag" v-model="inputText" type="text" />
       <div v-for="data in dataCategory" :key="data.id" class="w-full p-6 border-b-2 flex justify-between items-center">
         <div class="flex items-center gap-4">
           <div v-if="data.status" @click="handleStatus(data.id)" class="w-4 h-4 border bg-BrightBlue rounded-full"></div>
@@ -96,6 +108,12 @@ onMounted(() => {
             <div class="flex gap-3 items-center">
               <p class="p-1 rounded-sm bg-VeryLightGrayishBlue text-xs">{{ data.category }}</p>
               <img class="w-5 h-5" v-if="data.postscript" :src="desc" alt="desc" />
+            </div>
+            <div class="flex flex-wrap gap-2 items-center mt-3">
+              <div v-for="allTag in data.tag" class="flex gap-1 items-center">
+                <img class="w-4 h-4" :src="tags" alt="notif" />
+                <p class="text-xs">{{ allTag }}</p>
+              </div>
             </div>
           </div>
         </div>

@@ -6,7 +6,6 @@ import { book, work, note, music, travel, home, desc } from "../assets/index";
 import deleteSym from "../assets/icon-cross.svg";
 import { useRouter, useRoute } from "vue-router";
 import { getCategory, Category, changeNote, deleteNote, deleteCategory } from "../store/repository";
-import { Timestamp } from "firebase/firestore";
 
 const router = useRouter();
 const route = useRoute();
@@ -28,14 +27,16 @@ const dataCategory = ref<Category>({
 });
 const click = ref(false);
 const getData = async () => {
-  let t: Timestamp;
   dataCategory.value = await getCategory(route.params.id.toString());
-  const list = dataCategory.value.list.map((item) => {
-    t = item.remind_date;
-    return { ...item, remind_date: t.toDate() };
+  let list = dataCategory.value.list.map((item) => {
+    let t = new Date(item.remind_date);
+    return { ...item, remind_date: t };
   });
   list.sort((a: any, b: any) => b.remind_date - a.remind_date);
-  dataCategory.value.list = list;
+  let listAfter = list.map((item: any) => {
+    return { ...item, remind_date: item.remind_date.toLocaleString() };
+  });
+  dataCategory.value.list = listAfter;
 };
 const handleStatus = async (id: string) => {
   let index = dataCategory.value.list.findIndex((list) => list.id == id);
@@ -46,6 +47,8 @@ const handleStatus = async (id: string) => {
 const handleDelete = async (id: string) => {
   let index = dataCategory.value.list.findIndex((list) => list.id == id);
   let targetList = dataCategory.value.list[index];
+  console.log(targetList);
+
   await deleteNote(route.params.id.toString(), targetList);
   getData();
 };
@@ -82,22 +85,22 @@ onMounted(() => {
       </div>
     </div>
     <div class="w-full min-h-screen bg-white rounded-3xl absolute top-64 p-4">
-      <TransitionGroup>
-        <div v-if="dataCategory" v-for="data in dataCategory.list" :key="data.id" class="w-full p-6 border-b-2 flex justify-between items-center">
-          <div class="flex items-center gap-4">
-            <div v-if="data.status" @click="handleStatus(data.id)" class="w-4 h-4 border bg-BrightBlue rounded-full"></div>
-            <div v-if="data.status == false" @click="handleStatus(data.id)" class="w-4 h-4 border border-black rounded-full"></div>
-            <div class="flex flex-col">
-              <p v-if="data.status" class="line-through">{{ data.teks }}</p>
-              <p v-if="data.status == false" @click="router.push(`/create-note/${route.params.id}?idNote=${data.id}`)">{{ data.teks }}</p>
-              <img class="w-5 h-5" v-if="data.postscript" :src="desc" alt="desc" />
-            </div>
-          </div>
-          <div @click="handleDelete(data.id)" class="w-4 h-4 cursor-pointer">
-            <img :src="deleteSym" alt="del" />
+      <!-- <TransitionGroup> -->
+      <div v-if="dataCategory" v-for="data in dataCategory.list" :key="data.id" class="w-full p-6 border-b-2 flex justify-between items-center">
+        <div class="flex items-center gap-4">
+          <div v-if="data.status" @click="handleStatus(data.id)" class="w-4 h-4 border bg-BrightBlue rounded-full"></div>
+          <div v-if="data.status == false" @click="handleStatus(data.id)" class="w-4 h-4 border border-black rounded-full"></div>
+          <div class="flex flex-col">
+            <p v-if="data.status" class="line-through">{{ data.teks }}</p>
+            <p v-if="data.status == false" @click="router.push(`/create-note/${route.params.id}?idNote=${data.id}`)">{{ data.teks }}</p>
+            <img class="w-5 h-5" v-if="data.postscript" :src="desc" alt="desc" />
           </div>
         </div>
-      </TransitionGroup>
+        <div @click="handleDelete(data.id)" class="w-4 h-4 cursor-pointer">
+          <img :src="deleteSym" alt="del" />
+        </div>
+      </div>
+      <!-- </TransitionGroup> -->
     </div>
     <div @click="router.push(`/create-note/${route.params.id}`)" class="fixed w-20 h-20 rounded-full top-floatButton left-72 cursor-pointer bg-VeryLightGrayishBlue flex justify-center items-center">
       <p class="text-black text-3xl">+</p>
