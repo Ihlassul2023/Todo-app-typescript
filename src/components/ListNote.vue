@@ -24,6 +24,7 @@ const dataCategory = ref<Category>({
   image: "",
   name: "",
   list: [],
+  userId: "",
 });
 const click = ref(false);
 const getData = async () => {

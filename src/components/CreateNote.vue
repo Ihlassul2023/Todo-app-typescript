@@ -16,12 +16,14 @@ const dataInput = ref<Text>({
   category: "",
   category_id: "",
   tag: [],
+  userId: "",
 });
 const dataCategory = ref<Category>({
   id: "",
   image: "",
   name: "",
   list: [],
+  userId: "",
 });
 const idNameCategory = ref({
   id: "",
@@ -44,6 +46,7 @@ const getData = async (): Promise<void> => {
 };
 const getAllDataCategory = async () => {
   dataAllCategory.value = await getAllCategory();
+  dataAllCategory.value = dataAllCategory.value.filter((item) => (item?.userId ? item.userId == localStorage.getItem("idUser") : item));
 };
 onMounted(() => {
   getAllDataCategory();
@@ -59,6 +62,7 @@ const handleSubmit = async () => {
     category: idNameCategory.value.name || dataCategory.value.name,
     category_id: idNameCategory.value.id || dataCategory.value.id,
     tag: handleTags.value,
+    userId: localStorage.getItem("idUser") ?? "",
   };
   if (idNameCategory.value.id) {
     await createNote(idNameCategory.value.id, dataInput.value);

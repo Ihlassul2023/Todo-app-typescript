@@ -11,18 +11,21 @@ export type Text = {
   category: string;
   category_id: string;
   tag: string[];
+  userId: string;
 };
 export type Category = {
   id: string;
   name: string;
   image: string;
   list: Text[];
+  userId: string;
 };
 const category = ref<Category>({
   id: "",
   name: "",
   image: "",
   list: [],
+  userId: "",
 });
 export const getAllCategory = async (): Promise<Category[]> => {
   const categories = ref<Category[]>([]);
@@ -33,6 +36,7 @@ export const getAllCategory = async (): Promise<Category[]> => {
       name: category.data().name,
       image: category.data().image,
       list: category.data().list,
+      userId: category.data().userId,
     });
   });
   return categories.value;
@@ -43,6 +47,7 @@ export const postCategory = async (text: string) => {
     name: text,
     image: "desc",
     list: [],
+    userId: localStorage.getItem("idUser"),
   });
 };
 
@@ -55,8 +60,12 @@ export const getCategory = async (id: string): Promise<Category> => {
       image: doc.data().image,
       name: doc.data().name,
       list: doc.data().list,
+      userId: doc.data().userId,
     };
   });
+  category.value.list = category.value.list.filter((item) => item.userId == localStorage.getItem("idUser"));
+  console.log(category.value.list);
+
   return category.value;
 };
 

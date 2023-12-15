@@ -12,6 +12,7 @@ const dataCategory = ref<Category>({
   image: "",
   name: "",
   list: [],
+  userId: "",
 });
 const text = ref<string | undefined>("");
 const getData = async () => {

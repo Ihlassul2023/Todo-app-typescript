@@ -17,7 +17,6 @@ const identyImg: Record<string, string> = {
 };
 
 const click = ref(false);
-
 let listCategory = ref<Category[]>([]);
 const router = useRouter();
 const handleSideBar = () => {
@@ -26,6 +25,12 @@ const handleSideBar = () => {
 const getData = async () => {
   listCategory.value = await getAllCategory();
   listCategory.value.reverse();
+  listCategory.value = listCategory.value.filter((item) => (item?.userId ? item.userId == localStorage.getItem("idUser") : item));
+};
+const handleLogout = () => {
+  localStorage.removeItem("token");
+  localStorage.removeItem("id");
+  window.location.reload();
 };
 onMounted(() => {
   getData();
@@ -39,7 +44,7 @@ onMounted(() => {
       </div>
       <div class="flex flex-col gap-3">
         <p class="border-b-2">Menu</p>
-        <p class="border-b-2">Logout</p>
+        <p @click="handleLogout" class="border-b-2">Logout</p>
       </div>
     </div>
     <div class="p-4 min-h-screen">
@@ -50,21 +55,22 @@ onMounted(() => {
       </div>
       <p class="text-black text-2xl font-bold">Lists</p>
       <div class="relative flex flex-wrap justify-between gap-3 mt-4 md:flex-row">
-        <!-- <TransitionGroup> -->
-        <div
-          v-if="listCategory"
-          v-for="(category, name) in listCategory"
-          :key="name"
-          @click="category.id == 'ypf3iKUQQXeBmZvV0fFi' ? router.push(`/all-todos/${category.id}`) : router.push(`/list-note/${category.id}`)"
-          class="flex flex-col justify-center gap-4 w-widthCategory cursor-pointer md:w-32 h-32 border rounded-lg bg-white p-2"
-        >
-          <img class="h-sizeImg w-sizeImg" :src="identyImg[category.image]" alt="note" />
-          <div>
-            <p class="text-xl">{{ category.name }}</p>
-            <p v-if="category.id == 'ypf3iKUQQXeBmZvV0fFi'" class="text-sm">{{ listCategory.map((item) => item.list.length).reduce((acc, curr) => acc + curr) }} Task</p>
-            <p v-else class="text-sm">{{ category.list.length }} Task</p>
+        <TransitionGroup>
+          <div
+            v-if="listCategory"
+            v-for="(category, name) in listCategory"
+            :key="name"
+            @click="category.id == 'ypf3iKUQQXeBmZvV0fFi' ? router.push(`/all-todos/${category.id}`) : router.push(`/list-note/${category.id}`)"
+            class="flex flex-col justify-center gap-4 w-widthCategory cursor-pointer md:w-32 h-32 border rounded-lg bg-white p-2"
+          >
+            <img class="h-sizeImg w-sizeImg" :src="identyImg[category.image]" alt="note" />
+            <div>
+              <p class="text-xl">{{ category.name }}</p>
+              <p v-if="category.id == 'ypf3iKUQQXeBmZvV0fFi'" class="text-sm">{{ listCategory.map((item) => item.list.length).reduce((acc, curr) => acc + curr) }} Task</p>
+              <p v-else class="text-sm">{{ category.list.length }} Task</p>
+            </div>
           </div>
-        </div>
+        </TransitionGroup>
         <div @click="router.push('/add-category')" class="fixed w-20 h-20 rounded-full top-floatButton left-3/4 shadow-xl cursor-pointer bg-white flex justify-center items-center"><p class="text-black text-3xl">+</p></div>
       </div>
     </div>

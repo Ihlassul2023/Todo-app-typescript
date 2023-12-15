@@ -30,6 +30,7 @@ const getData = async () => {
       dataCategory.value.push(category.value[i].list[j]);
     }
   }
+  dataCategory.value = dataCategory.value.filter((item) => (item?.userId ? item.userId == localStorage.getItem("idUser") : item));
   const list = dataCategory.value.map((item) => {
     let t = new Date(item.remind_date);
     return { ...item, remind_date: t };
@@ -39,6 +40,7 @@ const getData = async () => {
     return { ...item, remind_date: item.remind_date.toLocaleString() };
   });
   dataCategory.value = listAfter;
+  console.log(dataCategory.value);
 };
 const handleStatus = async (id: string) => {
   let index = dataCategory.value.findIndex((list) => list.id == id);
