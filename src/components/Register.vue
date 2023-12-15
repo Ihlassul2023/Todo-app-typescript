@@ -2,10 +2,12 @@
 import { auth, createUserWithEmailAndPassword } from "../store/firestore";
 import { email, open, hide, password } from "../assets";
 import { ref } from "vue";
+import { useRouter } from "vue-router";
 
 const visibility = ref(false);
 const emailInput = ref("");
 const passwordInput = ref("");
+const router = useRouter();
 const handleSubmit = (e: any) => {
   e.preventDefault();
   createUserWithEmailAndPassword(auth, emailInput.value, passwordInput.value)
@@ -24,7 +26,7 @@ const handleSubmit = (e: any) => {
     <div class="w-3/4 bg-white p-4 rounded-lg shadow-lg">
       <p class="text-3xl mb-8 text-center">REGISTER</p>
       <p class="mb-4">Create Your Account</p>
-      <form @submit="handleSubmit">
+      <form class="mb-4" @submit="handleSubmit">
         <div class="flex flex-col gap-1 mb-4">
           <label for="">Email</label>
           <div class="relative">
@@ -44,6 +46,7 @@ const handleSubmit = (e: any) => {
         </div>
         <button class="bg-VeryLightGrayishBlue mt-4 p-4 w-full rounded-lg shadow-sm text-center">REGISTER</button>
       </form>
+      <p class="text-center">do you have account? <span class="text-BrightBlue" @click="router.push('/login')">login</span></p>
     </div>
   </div>
 </template>

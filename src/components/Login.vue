@@ -31,7 +31,7 @@ const handleSubmit = (e: any) => {
     <div class="w-3/4 bg-white p-4 rounded-lg shadow-lg">
       <p class="text-3xl mb-8 text-center">LOGIN</p>
       <p class="mb-4">Welcome !</p>
-      <form @submit="handleSubmit">
+      <form class="mb-4" @submit="handleSubmit">
         <div class="flex flex-col gap-1 mb-4">
           <label for="">Email</label>
           <div class="relative">
@@ -51,6 +51,7 @@ const handleSubmit = (e: any) => {
         </div>
         <button class="bg-VeryLightGrayishBlue mt-4 p-4 w-full rounded-lg shadow-sm text-center">LOGIN</button>
       </form>
+      <p>don't have account? click <span class="text-BrightBlue" @click="router.push('/register')">register</span></p>
     </div>
   </div>
 </template>
